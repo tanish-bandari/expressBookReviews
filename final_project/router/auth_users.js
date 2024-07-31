@@ -19,7 +19,7 @@ const isValid = (username) => { //returns boolean
 const authenticatedUser = (username,password) => { //returns boolean
     //write code to check if username and password match the one we have in records.
     let validuser = users.filter(user => user.username.trim() == username.trim() && user.password.trim() == password.trim());
-    if (validusers.length > 0) {
+    if (validuser.length > 0) {
         return true;
     } 
     else {
@@ -54,8 +54,28 @@ regd_users.post("/login", (req,res) => {
 
 // Add a book review
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  return res.status(300).json({message: "Yet to be implemented"});
+    //Write your code here
+    const isbn = req.params.isbn;
+    const review = req.query.review;
+    const user = req.session.authenticated.username;
+    let bookReviews = books[isbn.trim()].reviews;
+
+    if (!bookReviews){
+        res.send("ISBN ${isbn} does not exist.")
+    }
+
+    let reviewExists = false;
+    for (const username in bookReviews) {
+        if (username == user) {
+            bookReviews[user] = review;
+            reviewExists = true;
+            break;
+        }
+    }
+    if (!reviewExists) {
+        bookReviews[user] = review;
+    }
+    return res.json({message: "The review for ISBN ${isbn} has been added."});
 });
 
 module.exports.authenticated = regd_users;
